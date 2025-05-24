@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+playwright
+httpx
+pydantic>=2.0
+Pillow
+opencv-python-headless
+pytesseract
+google-generativeai
+langchain-google-genai
+langchain
+langchain_anthropic 
+langchain_aws
