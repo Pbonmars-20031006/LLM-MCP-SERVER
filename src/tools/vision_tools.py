@@ -1,6 +1,6 @@
 # vision_tools.py
 from playwright.async_api import Page
-from src.playwright.playwright_manager import PlaywrightManager
+from agent.playwright.playwright_manager import PlaywrightManager
 import asyncio
 import base64
 import logging

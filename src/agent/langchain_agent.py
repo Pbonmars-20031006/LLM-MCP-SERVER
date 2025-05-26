@@ -11,7 +11,10 @@ from langchain_anthropic import ChatAnthropic
 from langchain_aws.chat_models import ChatBedrock
 from langchain.tools import StructuredTool
 
-from vision_tools import browse_url, take_screenshot_base64, click_coordinates, type_text_at_coordinates, move_mouse
+from tools.vision_tools import browse_url, take_screenshot_base64, click_coordinates, type_text_at_coordinates, move_mouse
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from config import EXTERNAL_LLM_API_KEY, EXTERNAL_LLM_MODEL_NAME
 from langchain.agents.structured_chat.base import StructuredChatAgent
 from langchain.agents import AgentType, initialize_agent

@@ -11,9 +11,12 @@ from typing import Dict, Any, Optional
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from pydantic import BaseModel, Field
 
-from langchain_agent import run_agent_executor_task
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from agent.langchain_agent import run_agent_executor_task
 from config import EXTERNAL_LLM_MODEL_NAME, EXTERNAL_LLM_API_KEY
-from src.playwright.playwright_manager import PlaywrightManager
+from agent.playwright.playwright_manager import PlaywrightManager
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
