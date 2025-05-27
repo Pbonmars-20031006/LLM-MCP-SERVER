@@ -34,8 +34,8 @@ async def run_agent_executor_task(
     llm= ChatBedrock(
     model_id = "us.anthropic.claude-3-7-sonnet-20250219-v1:0",  # Replace with your desired Claude model
     credentials_profile_name="splunk-dev",
-    region_name = "us-east-1", #"us-east-1", # Ensure AWS_REGION is set
-    model_kwargs={'temperature': 0.2}
+    region_name = "us-east-2", #"us-east-1", # Ensure AWS_REGION is set
+    #model_kwargs={'temperature': 0.2}
 )
 #     llm=ChatAnthropic(
 #     model="claude-3-5-haiku-latest",
@@ -88,12 +88,29 @@ async def run_agent_executor_task(
     prompt = ChatPromptTemplate.from_messages(
         [
             SystemMessage(
-                content="You are a helpful AI agent that can interact with web pages and use tools to achieve your goals. "
-                "Your primary method of interaction is by analyzing screenshots and providing precise x, y coordinates to the 'click_coordinates' and 'type_text_at_coordinates' tools. "
-                "Always take a screenshot first to understand the current state of the page. "
-                "When you identify an element (like an input field, button, or link), provide its estimated center x, y coordinates to the relevant tool."
+                content="""You are a helpful assistant and can use tools to perform actions on my chromium browser.
+
+For the very first task, you will use the navigate_to function to open the specified webpage.
+
+To open apps, move the mouse over the center of the app icon and single-click.
+
+If you want to press a key more than once, join them together with a '+'.
+
+I like you to refresh the google page every time you start a new task (after the first one). Also, if possible, always work on a new tab.
+
+After each action, check the screen to ensure the action had the intended effect. Do not assume completion until verified.
+
+Be careful when selecting menu items—look first, move the mouse carefully, then click.
+
+Before writing text, ensure the cursor is in the correct location. Always look at the screen before performing any action.
+
+Also, ensure when trying to look for downloading users data, like a lot of users, look for options like organizations, team members, etc. As these pages usually have all the user data there.
+
+Also, when interacting with dropdowns, always use a tab to reach the dropdown field, use the space bar to open the dropdown, use arrow keys to constantly move around the dropdown. When each element gets highlighted, take a screenshot to verify if it's the one you are looking for. Once you reach the element you look for, press Enter to select the value.
+
+To look for the update button, go for Ctrl+F, type 'update' in it."""
             ),
-            MessagesPlaceholder(variable_name="chat_history", optional=True),
+            #MessagesPlaceholder(variable_name="chat_history", optional=True),
             HumanMessage(content="{input}"),
             MessagesPlaceholder(variable_name="agent_scratchpad"),
         ]
@@ -122,7 +139,7 @@ async def run_agent_executor_task(
 
     try:
         # Use arun instead of invoke for async execution
-        response = await agent_executor.arun(
+        response = await agent_executor.ainvoke(
             input=formatted_prompt_messages[0].content
         )
         return response

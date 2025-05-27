@@ -43,8 +43,9 @@ class PlaywrightManager:
         if self._browser is None:
             self._playwright_context = await async_playwright().start()
             self._browser = await self._playwright_context.chromium.launch(headless=self._headless)
-            # Create ONE persistent page for all interactions with viewport size 800x600
-            self._page = await self._browser.new_page(viewport={"width": 800, "height": 600})
+            # Create ONE persistent page with smaller viewport to reduce screenshot size
+            #viewport={"width": 800, "height": 600}
+            self._page = await self._browser.new_page()
             self._screenshot_counter = 0 # Reset counter for a new browser session
             print("Playwright browser launched and persistent page created with viewport 800x600.")
         else:
@@ -77,7 +78,18 @@ class PlaywrightManager:
 
     async def take_screenshot_and_save(self, page: Page) -> bytes:
         """Takes a screenshot and optionally saves it locally based on manager's config."""
-        screenshot_bytes = await page.screenshot(full_page=True)
+        # Use clip to limit screenshot size and avoid full page screenshots
+        # that can be too large for the model
+        viewport = page.viewport_size
+        if viewport:
+            screenshot_bytes = await page.screenshot(
+                full_page=False,
+                clip={"x": 0, "y": 0, "width": viewport["width"], "height": viewport["height"]}
+            )
+        else:
+            # Fallback to viewport-only screenshot if viewport size is not available
+            screenshot_bytes = await page.screenshot(full_page=False)
+            
         if self._save_screenshots_locally:
             self._screenshot_counter += 1
             timestamp = int(time.time())

@@ -41,7 +41,7 @@ async def send_mcp_request(method: str, params: Dict[str, Any], request_id: str)
             print(f"[CLIENT ERROR] An unexpected error occurred: {e}")
             raise
 
-async def get_mcp_result(request_id: str, timeout_seconds: int = 600) -> Dict[str, Any]:
+async def get_mcp_result(request_id: str, timeout_seconds: int = 300) -> Dict[str, Any]:
     """
     Polls the server's /mcp/result/{request_id} endpoint for the asynchronous task result.
     """
@@ -61,7 +61,7 @@ async def get_mcp_result(request_id: str, timeout_seconds: int = 600) -> Dict[st
                 response = await client.get(url)
                 if response.status_code == 202: # HTTP 202 Accepted: Task is still processing
                     print(f"[CLIENT] Polling for result of {request_id}... (still processing)")
-                    await asyncio.sleep(3) # Wait a bit longer before polling again
+                    await asyncio.sleep(5) # Increased polling interval to reduce API calls
                 elif response.status_code == 200: # HTTP 200 OK: Result is ready
                     print(f"[CLIENT] Received final result for {request_id}:")
                     result = response.json()
@@ -113,14 +113,14 @@ async def main():
         {
             "role": "user",
             "parts": [
-                {"text": "as a human go to page https://saviynt-trialhelp.zendesk.com/admin/people/team/members and fill username as k1980338@gmail.com and password as  kiran123*. After each and every operation take a screenshot and verify your actions"}
+                {"text": "Acting as a human, please complete the following tasks in Zendesk and take screenshots after each step:\n\n1. Navigate to https://saviynt-trialhelp.zendesk.com/admin/people/team/members\n2. Take a screenshot of the login page\n3. Enter username k1980338@gmail.com and password kiran123*\n4. Take a screenshot showing the credentials entered\n5. Click the login button\n6. Take a screenshot of the successful login page\n7. Find and click on the 'Create team member' button\n8. Enter name 'Abhi Kumar' and email 'akumar@example.com'\n9. Take a screenshot of the completed form\n10. Click the 'Next' button\n11. Take a screenshot of the next page\n12. Find the support role dropdown and select 'Contributor' role\n13. Take a screenshot showing the selected role\n14. Click the 'Save' button\n15. Wait 10 seconds for the user to be created in the system\n16. Take a screenshot showing the new user in the team members list\n17. Click on the user menu button and select 'Sign out' from the dropdown\n18. Take a final screenshot of the logout confirmation\n\nPlease describe what you observe on the screen after each action."}
             ]
         }
     ]
 
     await send_mcp_request(
         "llm_query",
-        {"messages": prompt_messages_2, "model_name": "gemini-2.0-flash"}, # Using gemini-1.5-flash
+        {"messages": prompt_messages_2, "model_name": "claude-3-5-sonnet-20240620-v1:0"}, # Using a different model to avoid looping
         task_id_2
     )
 
